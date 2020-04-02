@@ -7,6 +7,7 @@
 
 #define hash_mod 599999
 #define hash_len 8
+#define win_linux 1
 
 typedef struct word
 {
@@ -56,7 +57,7 @@ int main()
 	while(fgets(word_cache,51,stop) != NULL)
 	{
 		if(word_cache[strlen(word_cache) - 1] == '\n')
-			word_cache[strlen(word_cache) - 2] = 0;
+			word_cache[strlen(word_cache) - win_linux] = 0;
 		word_point *p = (word_point *) malloc (sizeof(word_point));
 		p->gate = NULL;
 		p->keyword = (char *) malloc (51);
@@ -67,8 +68,7 @@ int main()
 	while(fgets(word_cache,51,dic) != NULL)
 	{
 		if(word_cache[strlen(word_cache) - 1] == '\n')
-		//注意在Linux环境下的\r\n需要变成-2
-			word_cache[strlen(word_cache) - 2] = 0;
+			word_cache[strlen(word_cache) - win_linux] = 0;
 		all[all_top].keyword = (char *) malloc (51);
 		strcpy(all[all_top].keyword,word_cache);
 		word_point *p = (word_point *) malloc (sizeof(word_point));
@@ -90,46 +90,11 @@ int main()
 			continue;
 		find_insert(dictionary,word_cache,2);
 	}
-	//优化到这里；所有的字典哈希桶已经改成了指针的形式
 	scanf("%d",&n);
 	word *words_1 = (word *) malloc (sizeof(word) * n + 32);
 	word *words_2 = (word *) malloc (sizeof(word) * n + 32);
 	word *words = (word *) malloc (sizeof(word) * n + 32);
-	/*这里的代码可以考虑修改一下，不要每次都使用快速排序，而是用一个数存储下一个的插入位置，从而把时间复杂度从n^2logn下降到n*/
 	int top_1 = 0,top_2 = 0;
-	/*
-	for (i = 0;i < len_all;i ++)
-	{
-		if (top_1 <= n - 1 && all[i].num_1 != 0)
-		{
-			words_1[top_1].keyword = (char *) malloc (32);
-			strcpy(words_1[top_1].keyword,all[i].keyword);
-			words_1[top_1].num_1 = all[i].num_1;
-			qsort(words_1,top_1,sizeof(word),cmp_1);
-			top_1 ++;
-		}
-		else if (top_1 == n && cmp_1(&all[i],&words_1[top_1 - 1]) == -1)
-		{
-			strcpy(words_1[top_1 - 1].keyword,all[i].keyword);
-			words_1[top_1 - 1].num_1 = all[i].num_1;
-			qsort(words_1,top_1,sizeof(word),cmp_1);
-		}
-		if (top_2 <= n - 1 && all[i].num_2 != 0)
-		{
-			words_2[top_2].keyword = (char *) malloc (32);
-			strcpy(words_2[top_2].keyword,all[i].keyword);
-			words_2[top_2].num_2 = all[i].num_2;
-			qsort(words_2,top_2,sizeof(word),cmp_2);
-			top_2 ++;
-		}
-		else if (top_2 == n && cmp_2(&all[i],&words_2[top_2 - 1]) == -1)
-		{
-			strcpy(words_2[top_2 - 1].keyword,all[i].keyword);
-			words_2[top_2 - 1].num_2 = all[i].num_2;
-			qsort(words_2,top_2,sizeof(word),cmp_2);
-		}
-	}
-	*/
 	if (n < all_top)
 		sort(all,0,all_top,n,cmp_1);
 	top_1 = all_top > n ? n : all_top;
@@ -194,20 +159,12 @@ void change_to_low(char *word)
 	return;
 }
 
-/*这里有优化的空间，哈希函数*/
 long long hash(char *word_cache)
 {
 	change_to_low(word_cache);
 	long long hash_code = 0; 
 	int len = strlen(word_cache);
 	int i;
-	/*
-	for (i = 0;i < len;i ++)
-	{
-		hash_code += pow(hashcode[i % hash_len],len - i - 1) * word_cache[i];
-		hash_code %= hash_mod;
-	}
-	*/
 	for (i = 0;i < len;i ++)
 	{
 		hash_code += hashcode[i % hash_len] * word_cache[i] * hashcode[i % hash_len];
