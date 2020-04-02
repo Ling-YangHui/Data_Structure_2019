@@ -7,7 +7,7 @@
 
 #define hash_mod 599999
 #define hash_len 8
-#define win_linux 1
+#define win_linux 2
 
 typedef struct word
 {
