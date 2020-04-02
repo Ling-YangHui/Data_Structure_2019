@@ -6,6 +6,7 @@
 #include <math.h>
 
 #define MAXSIZE 1000000
+#define MAXCACHE 10000000
 #define win_linux 2
 
 typedef struct word
@@ -21,7 +22,8 @@ typedef struct node
     word *gate;
 } node;
 
-word all[MAXSIZE] = {0};
+word *all;
+node *cache;
 void InsertTree(node *,char *,word *);
 int FindTree(node *,char *,int);
 void change_to_low(char *);
@@ -31,11 +33,17 @@ int cmp_1(const void *,const void *);
 int cmp_2(const void *,const void *);
 int cmp(const void *,const void *);
 void sort(word *,int,int,int,int (const void *,const void *));
+node *alloc_node();
 int cache_top = -1;
 int all_top = 0;
 
 int main()
 {
+	int op = clock();
+	all = (word *) calloc (MAXSIZE,sizeof(word));
+	cache = (node *) calloc (MAXCACHE,sizeof(node));
+	if (all == NULL || cache == NULL)
+		return 0;
 	stop_point = (word *) malloc (sizeof(word));
     FILE *dic,*stop,*art_1,*art_2,*result;
 	int n,i;
@@ -50,8 +58,8 @@ int main()
 		return 0;
 	if ((result = fopen("results.txt","w")) == NULL)
 		return 0;
-    node *root_stop = (node *) calloc (1,sizeof(node));
-    node *root_dic = (node *) calloc (1,sizeof(node));
+    node *root_stop = alloc_node();
+    node *root_dic = alloc_node();
     while(fgets(word_cache,51,stop) != NULL)
 	{
 		if(word_cache[strlen(word_cache) - 1] == '\n')
@@ -140,6 +148,9 @@ int main()
 	fprintf(result,"\n");
 	for (i = 0;i < top_2;i ++)
 		fprintf(result,"%s %lld\n",words_2[i].keyword,words_2[i].num_2);
+	//printf("%d",clock() - op);
+	free(cache);
+	free(all);
 	return 0;
 }
 
@@ -150,7 +161,7 @@ void InsertTree(node *root,char *str,word *gate)
     do
     {
         if (p->next[str[i] - 'a'] == NULL)
-            p->next[str[i] - 'a'] = (node *) calloc (1,sizeof(node));
+            p->next[str[i] - 'a'] = alloc_node();
         p = p->next[str[i] - 'a'];
         i ++;
     }while(str[i] != '\0');
@@ -281,6 +292,12 @@ void sort(word *list,int low,int high,int n,int comp(const void *,const void *))
 		sort(list,low,i - 1,n,comp);
 	else if (i < n - 1)
 		sort(list,i + 1,high,n,comp);
+}
+
+node *alloc_node()
+{
+	cache_top ++;
+	return &cache[cache_top];
 }
 
 void change_to_low(char *word)
