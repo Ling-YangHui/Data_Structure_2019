@@ -38,6 +38,8 @@ int cmp_1(const void *,const void *);
 int cmp_2(const void *,const void *);
 int cmp(const void *,const void *);
 void sort(word *,int,int,int,int (const void *,const void *));
+void swap(word *,word *);
+int random_num(int);
 
 int main()
 {
@@ -281,6 +283,7 @@ void sort(word *list,int low,int high,int n,int comp(const void *,const void *))
 {
 	if (high <= low)
 		return;
+	swap(&list[low],&list[random_num(high - low + 1) + low]);
 	int i = low,j = high;
 	word key = list[low];
 	while (i < j)
@@ -307,4 +310,18 @@ void sort(word *list,int low,int high,int n,int comp(const void *,const void *))
 		sort(list,low,i - 1,n,comp);
 	else if (i < n - 1)
 		sort(list,i + 1,high,n,comp);
+}
+
+void swap(word *a,word *b)
+{
+	word c = *a;
+	*a = *b;
+	*b = c;
+	return;
+}
+
+int random_num(int size)
+{
+	srand((unsigned)time(NULL));
+	return rand() % size;
 }
