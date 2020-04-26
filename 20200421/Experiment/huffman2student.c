@@ -50,7 +50,7 @@ int main()
 
 	fclose(Src);
 	fclose(Obj);
-
+ 
     return 0;
 } 
 
@@ -175,7 +175,7 @@ void makeHCode()
 void atoHZIP()
 {
 	fclose(Src);
-	if((Src=fopen("input.txt","r"))==NULL) {
+	if((Src=fopen("D:\\programming\\DS\\20200421\\Experiment\\input.txt","r"))==NULL) {
 		fprintf(stderr, "%s open failed!\n", "input.txt");
 		return;
 	}
@@ -190,7 +190,7 @@ void atoHZIP()
 			if ((cnt + 1) % 8 == 0)
 			{
 				fputc(hc,Obj);
-				//printf("%x",hc);
+				printf("%x",hc);
 				hc = 0;
 			}
 		}
@@ -201,12 +201,12 @@ void atoHZIP()
 		if ((cnt + 1) % 8 == 0)
 		{
 			fputc(hc,Obj);
-			//printf("%x",hc);
+			printf("%x",hc);
 			hc = 0;
 		}
 	}
 	int flag = 0;
-	while(cnt <= 7)
+	while(cnt % 8 != 0)
 	{
 		flag = 1;
 		hc= (hc << 1) | 0;
@@ -215,7 +215,7 @@ void atoHZIP()
 	if (flag == 1)
 	{
 		fputc(hc,Obj);
-		//printf("%x",hc);
+		printf("%x",hc);
 	}
 	return;
 }
