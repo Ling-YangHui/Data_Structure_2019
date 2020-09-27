@@ -4,16 +4,19 @@
 #include <ctype.h>
 #include <time.h>
 #include <math.h>
+#include <windows.h>
+#include <process.h>
 
 #define MAXSIZE 1000000
-#define MAXCACHE 10000000
-#define win_linux 2
+#define MAXCACHE 5000000
+#define win_linux 1
 
 typedef struct word
 {
     char *keyword;
     int num_1;
     int num_2;
+	int NO_;
 } word;
 
 typedef struct node
@@ -24,6 +27,7 @@ typedef struct node
 
 word *all;
 node *cache;
+FILE *dic,*stop,*art_1,*art_2,*result;
 void InsertTree(node *,char *,word *);
 int FindTree(node *,char *,int);
 void change_to_low(char *);
@@ -36,6 +40,38 @@ void sort(word *,int,int,int,int (const void *,const void *));
 node *alloc_node();
 int cache_top = -1;
 int all_top = 0;
+void heap_sort(word *,int,int,int (const void *,const void *));
+void adjust(word *,int,int,int (const void *,const void *));
+char *alloc_word();
+char pool[600000][51];
+node *root_stop,*root_dic;
+char *word_cache;
+char *word_cache_1,*word_cache_2;
+int thread_1,thread_2;
+
+void Found_1(void *a)
+{
+	while(fget_word(word_cache_1,art_1) != NULL)
+	{
+		if (FindTree(root_stop,word_cache_1,0))
+			continue;
+		FindTree(root_dic,word_cache_1,1);
+	}
+	thread_1 = 1;
+	_endthread();
+}
+
+void Found_2(void *a)
+{
+	while(fget_word(word_cache_2,art_2) != NULL)
+	{
+		if (FindTree(root_stop,word_cache_2,0))
+			continue;
+		FindTree(root_dic,word_cache_2,2);
+	}
+	thread_2 = 1;
+	_endthread();
+}
 
 int main()
 {
@@ -45,27 +81,28 @@ int main()
 	if (all == NULL || cache == NULL)
 		return 0;
 	stop_point = (word *) malloc (sizeof(word));
-    FILE *dic,*stop,*art_1,*art_2,*result;
 	int n,i;
-	char *word_cache = (char *) malloc (51);
-	if ((dic = fopen("dictionary.txt","r")) == NULL)
+	word_cache = alloc_word();
+	word_cache_1 = alloc_word();
+	word_cache_2 = alloc_word();
+	if ((dic = fopen("D:\\programming\\DS\\final works\\dictionary.txt","r")) == NULL)
 		return 0;
-	if ((stop = fopen("stopwords.txt","r")) == NULL)
+	if ((stop = fopen("D:\\programming\\DS\\final works\\stopwords.txt","r")) == NULL)
 		return 0;
-	if ((art_1 = fopen("article1.txt","r")) == NULL)
+	if ((art_1 = fopen("D:\\programming\\DS\\final works\\article1.txt","r")) == NULL)
 		return 0;
-	if ((art_2 = fopen("article2.txt","r")) == NULL)
+	if ((art_2 = fopen("D:\\programming\\DS\\final works\\article2.txt","r")) == NULL)
 		return 0;
-	if ((result = fopen("results.txt","w")) == NULL)
+	if ((result = fopen("D:\\programming\\DS\\final works\\results.txt","w")) == NULL)
 		return 0;
-    node *root_stop = alloc_node();
-    node *root_dic = alloc_node();
+    root_stop = alloc_node();
+    root_dic = alloc_node();
     while(fgets(word_cache,51,stop) != NULL)
 	{
 		if(word_cache[strlen(word_cache) - 1] == '\n')
 			word_cache[strlen(word_cache) - win_linux] = 0;
         change_to_low(word_cache);
-        char *str = (char *) malloc (51);
+        char *str = alloc_word();
         strcpy(str,word_cache);
         InsertTree(root_stop,str,stop_point);
 	}
@@ -73,11 +110,13 @@ int main()
 	{
 		if(word_cache[strlen(word_cache) - 1] == '\n')
 			word_cache[strlen(word_cache) - win_linux] = 0;
-		all[all_top].keyword = (char *) malloc (51);
+		all[all_top].keyword = alloc_word();
+		all[all_top].NO_ = all_top;
         strcpy(all[all_top].keyword,word_cache);
         InsertTree(root_dic,all[all_top].keyword,&all[all_top]);
 		all_top ++;
 	}
+	/*
     while(fget_word(word_cache,art_1) != NULL)
 	{
 		if (FindTree(root_stop,word_cache,0))
@@ -90,35 +129,58 @@ int main()
 			continue;
 		FindTree(root_dic,word_cache,2);
 	}
-    scanf("%d",&n);
+	*/
+	_beginthread(Found_1,0,NULL);
+	_beginthread(Found_2,0,NULL);
+	while(thread_1 == 0 && thread_2 == 0);
+	n = 500;
+    //scanf("%d",&n);
 	word *words_1 = (word *) malloc (sizeof(word) * n + 32);
 	word *words_2 = (word *) malloc (sizeof(word) * n + 32);
-	word *words = (word *) malloc (sizeof(word) * n + 32);
-    int top_1 = 0,top_2 = 0;
-    if (n < all_top)
-		sort(all,0,all_top,n,cmp_1);
-	top_1 = all_top > n ? n : all_top;
+	//word *words = (word *) malloc (sizeof(word) * n + 32);
+	word *alls = (word *) malloc (sizeof(word) * all_top);
+	char seat[1000000] = {0};
+	int j = 0;
+	for (i = 0;i < all_top;i ++)
+	{
+		if (all[i].num_1 == 0 && all[i].num_2 == 0)
+			continue;
+		alls[j ++] = all[i];
+	}
+	int alls_top = j;
+	int top_1 = 0,top_2 = 0;
+
+	if (n < alls_top)
+		//sort(all,0,all_top,n,cmp_1);
+		heap_sort(alls,alls_top,n,cmp_1);
+	top_1 = alls_top > n ? n : alls_top;
 	for (i = 0;i < top_1;i ++)
 	{
-		words_1[i].keyword = (char *) malloc (51);
-		strcpy(words_1[i].keyword,all[i].keyword);
-		words_1[i].num_1 = all[i].num_1;
+		words_1[i].keyword = alloc_word();
+		strcpy(words_1[i].keyword,alls[i].keyword);
+		words_1[i].NO_ = alls[i].NO_;
+		words_1[i].num_1 = alls[i].num_1;
 	}
 	qsort(words_1,top_1,sizeof(word),cmp_1);
-	if (n < all_top)
-		sort(all,0,all_top,n,cmp_2);
-	top_2 = all_top > n ? n : all_top;
+	
+	if (n < alls_top)
+		//sort(all,0,all_top,n,cmp_2);
+		heap_sort(alls,alls_top,n,cmp_2);
+	top_2 = alls_top > n ? n : alls_top;
 	for (i = 0;i < top_2;i ++)
 	{
-		words_2[i].keyword = (char *) malloc (51);
-		words[i].keyword = (char *) malloc (51);
-		strcpy(words_2[i].keyword,all[i].keyword);
-		words[i].num_2 = all[i].num_2;
-		words_2[i].num_2 = all[i].num_2;
-		strcpy(words[i].keyword,all[i].keyword);
+		words_2[i].keyword = alloc_word();
+		//words[i].keyword = alloc_word();
+		strcpy(words_2[i].keyword,alls[i].keyword);
+		//words[i].num_2 = alls[i].num_2;
+		words_2[i].num_2 = alls[i].num_2;
+		//strcpy(words[i].keyword,alls[i].keyword);
+		seat[alls[i].NO_] = 1;
 	}
 	qsort(words_2,top_2,sizeof(word),cmp_2);
-	qsort(words,top_2,sizeof(word),cmp);
+	//qsort(words,top_2,sizeof(word),cmp);
+
+
 	double pro_1_all = 0,pro_2_all = 0;
 	double pro_1_cache = 0,pro_2_cache = 0;
 	for (i = 0;i < top_2;i ++)
@@ -127,11 +189,15 @@ int main()
 	{
 		pro_1_all += words_1[i].num_1;
 		word *pro = NULL;
+		/*
 		pro = (word *) bsearch (&words_1[i],words,top_2,sizeof(word),cmp);
 		if (pro != NULL)
+		*/
+	
+		if (seat[words_1[i].NO_] == 1)
 		{
 			pro_1_cache += words_1[i].num_1;
-			pro_2_cache += pro->num_2; 	
+			pro_2_cache += all[words_1[i].NO_].num_2; 	
 		}
 	}
 	double pro_1 = pro_1_cache / pro_1_all;
@@ -148,9 +214,7 @@ int main()
 	fprintf(result,"\n");
 	for (i = 0;i < top_2;i ++)
 		fprintf(result,"%s %lld\n",words_2[i].keyword,words_2[i].num_2);
-	//printf("%d",clock() - op);
-	free(cache);
-	free(all);
+	printf("%d",clock() - op);
 	return 0;
 }
 
@@ -294,6 +358,50 @@ void sort(word *list,int low,int high,int n,int comp(const void *,const void *))
 		sort(list,i + 1,high,n,comp);
 }
 
+void heap_sort(word *list,int n,int num,int comp(const void *,const void *))
+{
+	int i;
+	word temp;
+	for (i = n / 2 - 1;i >= 0;i --)
+	{
+		adjust(list,i,n,comp);
+	}
+	for (i = n - 1;i >= n - 1 - num;i --)
+	{
+		temp = list[i];
+		list[i] = list[0];
+		list[0] = temp;
+		adjust(list,0,i,comp);
+	}
+	for (i = 0;i < num;i ++)
+	{
+		temp = list[i];
+		list[i] = list[n - 1 - i];
+		list[n - 1 - i] = temp;
+	}
+}
+
+void adjust(word *list,int i,int n,int comp(const void *,const void *))
+{
+	int j;
+	word temp;
+	temp = list[i];
+	j = 2 * i + 1;
+	while(j < n)
+	{
+		if (j + 1 < n && comp(&list[j],&list[j + 1]) > 0)
+			j ++;
+		if (comp(&temp,&list[j]) > 0)
+		{
+			list[(j - 1) / 2] = list[j];
+			j = 2 * j + 1;
+		}
+		else
+			break;
+	}
+	list[(j - 1) / 2] = temp;
+}
+
 node *alloc_node()
 {
 	cache_top ++;
@@ -306,4 +414,10 @@ void change_to_low(char *word)
 		if (isupper(*word))
 			*word = tolower(*word);
 	return;
+}
+
+char *alloc_word()
+{
+	static int pooltop = 0;
+	return pool[pooltop ++];
 }

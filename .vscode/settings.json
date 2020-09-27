@@ -1,0 +1,16 @@
+{
+    "files.associations": {
+        "stdio.h": "c",
+        "cmath": "cpp",
+        "string.h": "c",
+        "algorithm": "c",
+        "J.C": "cpp",
+        "*.tcc": "c",
+        "cstdlib": "c",
+        "memory": "c",
+        "stdlib.h": "c",
+        "STDLIB.H": "cpp",
+        "chrono": "c",
+        "math.h": "c"
+    }
+}

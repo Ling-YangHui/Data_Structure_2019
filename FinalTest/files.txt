@@ -1,0 +1,97 @@
+D - 1 20190101
+
+MyDoc D 1 20190101
+
+win D 1 20190101
+
+test.c D 0 20190901
+
+work MyDoc 1 20190101
+
+2018 work 1 20190102
+
+plan.doc 2018 0 20190202
+
+date.doc 2018 0 20190305
+
+2019 work 1 20190103
+
+test.c work 0 20190901
+
+test.obj work 0 20190902
+
+sun.jpg 2019 0 20190405
+
+report.ppt 2018 0 20190306
+
+test MyDoc 1 20190103
+
+music MyDoc 1 20190103
+
+temp MyDoc 1 20190103
+
+moon.mp3 music 0 20190607
+
+thesky.mp3 music 0 20190701
+
+moon.jpg 2019 0 20190506
+
+test.c 2019 0 20190901
+
+apologize.mp3 music 0 20190702
+
+test.c 2018 0 20190901
+
+natural.mp3 music 0 20190702
+
+world.exe win 0 20190101
+
+dev.exe win 0 20190102
+
+course temp 1 20190505
+
+mon.exl temp 0 20190505
+
+wel.ppt temp 0 20190605
+
+math course 1 20190506
+
+lang course 1 20190607
+
+one math 1 20190507
+
+test.c lang 0 20190925
+
+graph.c lang 0 20190926
+
+two math 1 20190508
+
+three math 1 20190508
+
+test.c math 0 20190926
+
+prog one 1 20190609
+
+data one 1 20190610
+
+sum three 1 20190509
+
+test.c three 0 20190901
+
+in.dat three 0 20190902
+
+input.txt prog 0 20190809
+
+output.txt prog 0 20190827
+
+test.c prog 0 20190901
+
+test.exe prog 0 20190901
+
+save data 1 20190611
+
+test.exe data 0 20190612
+
+in.txt data 0 20190612
+
+out.dat three 0 20190902
