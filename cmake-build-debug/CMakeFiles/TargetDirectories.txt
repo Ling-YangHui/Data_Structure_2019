@@ -1,2 +1,0 @@
-D:/programming/Data_Structure_2019-Private/cmake-build-debug/CMakeFiles/edit_cache.dir
-D:/programming/Data_Structure_2019-Private/cmake-build-debug/CMakeFiles/rebuild_cache.dir
