@@ -8,6 +8,7 @@
 #include <ctype.h>
 #include <math.h>
 
+/* 符号枚举类型 */
 enum Sign
 {
     ADD, SUB, MUL, DIV, EMP, END
@@ -27,15 +28,10 @@ int numStackTop = 0;
 int signStackTop = 0;
 
 struct Node getNode();
-
 void pushNumStack(struct Node);
-
 void pushSignStack(struct Node);
-
 struct Node popNumStack();
-
 struct Node popSignStack();
-
 struct Node calculate(struct Node, struct Node, struct Node);
 
 int main()
@@ -54,9 +50,10 @@ int main()
             {
                 pushNumStack(calculate(popNumStack(), popNumStack(), pastNode));
             }
+            pushSignStack(newNode);
         }
     }
-    while((newNode = popSignStack()).sign != END)
+    while ((newNode = popSignStack()).sign != END)
     {
         pushNumStack(calculate(popNumStack(), popNumStack(), newNode));
     }
