@@ -1,9 +1,16 @@
 #include <stdio.h>
 #include <ctype.h>
+
 #define MAXSIZE 512
 
-enum type{NUM,OP,EQ,EMP};
-enum op{EQU,ADD,SUB,MUL,DIV,MOD,LEFT,RIGHT};
+enum type
+{
+    NUM, OP, EQ, EMP
+};
+enum op
+{
+    EQU, ADD, SUB, MUL, DIV, MOD, LEFT, RIGHT
+};
 typedef struct node
 {
     int num;
@@ -12,8 +19,8 @@ typedef struct node
 } node;
 int num_stack[MAXSIZE];
 enum op op_stack[MAXSIZE];
-int num_top = -1,op_top = -1;
-int priority[] = {-1,0,0,1,1,1,2,2};
+int num_top = -1, op_top = -1;
+int priority[] = {-1, 0, 0, 1, 1, 1, 2, 2};
 node getnode();
 void process(node);
 int caculate(enum op);
@@ -21,49 +28,60 @@ int caculate(enum op);
 int main()
 {
     node p;
-    while(p = getnode(),p.type != EQ)
+    while (p = getnode(), p.type != EQ)
     {
         if (p.type == EMP)
             continue;
         else if (p.type == NUM)
-            num_stack[++ num_top] = p.num;
+            num_stack[++num_top] = p.num;
         else if (p.type == OP)
             process(p);
     }
-    while(op_top >= 0)
+    while (op_top >= 0)
     {
-        caculate(op_stack[op_top --]);
+        caculate(op_stack[op_top--]);
     }
-    printf("%d",num_stack[0]);
+    printf("%d", num_stack[0]);
 }
 
 int caculate(enum op op)
 {
-    int b = num_stack[num_top --];
-    int a = num_stack[num_top --];
+    int b = num_stack[num_top--];
+    int a = num_stack[num_top--];
     int t;
     switch (op)
     {
-        case ADD: t = a + b; break;
-        case SUB: t = a - b; break;
-        case MUL: t = a * b; break;
-        case DIV: t = a / b; break;
-        case MOD: t = a % b; break;
+        case ADD:
+            t = a + b;
+            break;
+        case SUB:
+            t = a - b;
+            break;
+        case MUL:
+            t = a * b;
+            break;
+        case DIV:
+            t = a / b;
+            break;
+        case MOD:
+            t = a % b;
+            break;
     }
-    num_stack[++ num_top] = t;
+    num_stack[++num_top] = t;
     return 1;
 }
+
 void process(node p)
 {
     if (p.op != RIGHT)
     {
-        while(priority[p.op] <= priority[op_stack[op_top]] && op_stack[op_top] != LEFT)
-            caculate(op_stack[op_top --]);
-        op_stack[++ op_top] = p.op;
+        while (priority[p.op] <= priority[op_stack[op_top]] && op_stack[op_top] != LEFT)
+            caculate(op_stack[op_top--]);
+        op_stack[++op_top] = p.op;
     }
     else
     {
-        while(op_stack[op_top --] != LEFT)
+        while (op_stack[op_top--] != LEFT)
             caculate(op_stack[op_top + 1]);
     }
 }
@@ -72,9 +90,9 @@ node getnode()
 {
     node p;
     p.type = EMP;
-    int num = 0,flag = 0;
+    int num = 0, flag = 0;
     char c = getchar();
-    while(isdigit(c))
+    while (isdigit(c))
     {
         flag = 1;
         num *= 10;
@@ -85,7 +103,7 @@ node getnode()
     {
         p.type = NUM;
         p.num = num;
-        ungetc(c,stdin);
+        ungetc(c, stdin);
         return p;
     }
     switch (c)

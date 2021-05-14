@@ -3,3 +3,7 @@ set(CMAKE_C_STANDARD 99)
 
 add_executable(example1c 20200219/example1c.c)
 add_executable(example1_new 20200219/example1_new.c)
+add_executable(books 20200303/books.c)
+add_executable(chess 20200303/chess.c)
+add_executable(sore_new 20200303/sore_new.c)
+add_executable(netTree 20200421/netTree.c)
