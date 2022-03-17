@@ -3,6 +3,7 @@
 #include <string.h>
 #define MAXLEN 256
 #define NAN 65536
+#define LOCAL
 
 typedef struct Way
 {
@@ -15,10 +16,10 @@ typedef struct Station
     int isTrans;
 } Station;
 Way Graph[MAXLEN][MAXLEN];
-int Weight[MAXLEN];
-int Route[MAXLEN];
-int inRoute[MAXLEN];
-int Length[MAXLEN];
+int Weight[MAXLEN]; // 标志每个点到已选择点集合的距离
+int Route[MAXLEN]; // 标志每个点的前一个点
+int inRoute[MAXLEN]; // 标志是否在选择的路径之中
+int Length[MAXLEN]; // 标志当前点到源点的距离
 Station Stations[MAXLEN];
 int StationTop = -1;
 int SearchStation(char *);
@@ -27,7 +28,11 @@ char *GetStationName(int);
 
 int main()
 {
+#ifdef LOCAL
+    FILE *input = fopen("D:\\programming\\Data_Structure_2019-Private\\20200526\\bgstations.txt","r");
+#else
     FILE *input = fopen("bgstations.txt","r");
+#endif
     if (input == NULL)
     {
         fprintf(stderr,"Cannot open");
@@ -122,9 +127,11 @@ void SearchRoute(int StartNum,int DestNum)
     int i,j,k;
     inRoute[StartNum] = 1;
     for (i = 0;i < MAXLEN;i ++)
+        // 首先认为每个点的前驱都是起始点
         Route[i] = StartNum;
     Route[StartNum] = -1;
     for (i = 0;i < MAXLEN;i ++)
+        // 对于前驱是起始点，载入对应的权重的路径长度
         Length[i] = Weight[i] = Graph[StartNum][i].weight;
     for (k = 0;k <= StationTop;k ++)
     {
@@ -132,17 +139,21 @@ void SearchRoute(int StartNum,int DestNum)
         int LeastNum;
         for (i = 0;i < MAXLEN;i ++)
         {
+            // 选取出在未选择的点中距离已选择的点集最近的一个点，并且标志这个点的位置
             if (inRoute[i] != 1 && Weight[i] < LeastWeight)
             {
                 LeastNum = i;
                 LeastWeight = Weight[i];
             }
         }
+        // 将这个点选择进去，并且将它的距离写入
         inRoute[LeastNum] = 1;
         Length[LeastNum] = Weight[LeastNum];
         //printf("%s-%s\n",GetStationName(Route[LeastNum]),GetStationName(LeastNum));
         if (LeastNum == DestNum)
             break;
+
+        // 更新所有未选择的点到达已选择点的距离
         for (i = 0;i < MAXLEN;i ++)
         {
             if (inRoute[i] != 1 && Weight[i] > Length[LeastNum] + Graph[LeastNum][i].weight)
